@@ -8,7 +8,7 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     // Include shared UI if needed
-    "../../packages/ui/**/*.{js,ts,jsx,tsx,mdx}",
+    "../../packages/ui/**/*.{jsx,tsx}",
   ],
   theme: {
     ...sharedConfig.theme,
