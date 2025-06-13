@@ -1,0 +1,12 @@
+{
+  "name": "@repo/tailwind-config",
+  "version": "1.0.0",
+  "description": "Tailwind config for tail-cn",
+  "private": true,
+  "files": [
+    "./tailwind.config.ts"
+  ],
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}
