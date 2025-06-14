@@ -11,11 +11,11 @@
     "prefix": ""
   },
   "aliases": {
-    "components": "@repo/ui/components",
-    "utils": "@repo/utils/functions/cn",
-    "ui": "@repo/ui/components",
-    "lib": "@repo/ui/lib",
-    "hooks": "@repo/ui/hooks"
+    "components": "@chatgpt/ui/components",
+    "utils": "@chatgpt/utils/functions/cn",
+    "ui": "@chatgpt/ui/components",
+    "lib": "@chatgpt/ui/lib",
+    "hooks": "@chatgpt/ui/hooks"
   },
   "iconLibrary": "lucide"
 }

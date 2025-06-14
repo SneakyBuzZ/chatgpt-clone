@@ -1,5 +1,5 @@
 {
-  "name": "@repo/utils",
+  "name": "@chatgpt/utils",
   "version": "1.0.0",
   "description": "Utils for tail-cn",
   "main": "src/index.ts",

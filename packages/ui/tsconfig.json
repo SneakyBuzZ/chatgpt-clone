@@ -1,11 +1,11 @@
 {
-  "extends": "@repo/typescript-config/react-library.json",
+  "extends": "@chatgpt/typescript-config/react-library.json",
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "dist",
     "rootDir": "src",
     "paths": {
-      "@repo/ui/*": ["./src/*"]
+      "@chatgpt/ui/*": ["./src/*"]
     }
   },
   "include": ["src"],

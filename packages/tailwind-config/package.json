@@ -1,5 +1,5 @@
 {
-  "name": "@repo/tailwind-config",
+  "name": "@chatgpt/tailwind-config",
   "version": "1.0.0",
   "description": "Tailwind config for tail-cn",
   "private": true,

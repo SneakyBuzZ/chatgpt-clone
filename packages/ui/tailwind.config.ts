@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
-import sharedConfig from "@repo/tailwind-config/tailwind.config";
 import tailwindcssAnimate from "tailwindcss-animate";
+import sharedConfig from "@chatgpt/tailwind-config/tailwind.config";
 
 const config: Config = {
   darkMode: ["class"],

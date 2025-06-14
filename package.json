@@ -1,5 +1,5 @@
 {
-  "name": "tail-cn",
+  "name": "chatgpt-monorepo",
   "private": true,
   "scripts": {
     "build": "turbo run build",
