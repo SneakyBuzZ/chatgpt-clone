@@ -1,0 +1,40 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model ChatSession {
+  id        String    @id @default(nanoid()) @map("_id")
+  userId    String
+  title     String?
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Message {
+  id            String      @id @default(nanoid()) @map("_id")
+  chatSessionId String
+  role          MessageRole
+  content       String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  chatSession ChatSession @relation(fields: [chatSessionId], references: [id])
+
+  @@index([chatSessionId])
+}
+
+enum MessageRole {
+  user
+  assistant
+  system
+}

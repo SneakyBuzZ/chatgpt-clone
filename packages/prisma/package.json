@@ -1,0 +1,20 @@
+{
+  "name": "@chatgpt/prisma",
+  "version": "1.0.0",
+  "description": "Prisma utility functions for Chatgpt",
+  "main": "./src/index.ts",
+  "scripts": {
+    "db:generate": "npx prisma generate --schema=./schema/schema.prisma",
+    "db:push": "npx prisma db push --schema=./schema/schema.prisma",
+    "db:studio": "npx prisma studio --schema=./schema/schema.prisma"
+  },
+  "author": "Kaushik Katikala",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.0.3",
+    "prisma": "^6.9.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.9.0"
+  }
+}
