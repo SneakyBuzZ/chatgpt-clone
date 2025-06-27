@@ -41,3 +41,16 @@
 .hide-scrollbar {
     scrollbar-width: none;
 }
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #c9c9c900;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #535353;
+    border-radius: 10px;
+}

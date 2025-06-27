@@ -1,0 +1,16 @@
+{
+  "name": "@chatgpt/ai",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@ai-sdk/google": "^1.2.19",
+    "@ai-sdk/vercel": "^0.0.1",
+    "@google/generative-ai": "^0.24.1",
+    "@chatgpt/prisma": "workspace:*",
+    "ai": "^4.3.16",
+    "dotenv": "^16.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.3"
+  }
+}

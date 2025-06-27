@@ -15,9 +15,9 @@ export default function Header() {
             className="w-6 h-6"
           />
         </Button>
-        <Button variant={"ghost"} size={"icon"} className="rounded-lg">
-          <SidebarTrigger className="h-5 w-5 text-neutral-400" />
-        </Button>
+        <div className="hover:bg-dark-300 rounded-lg w-9 h-9 flex items-center justify-center">
+          <SidebarTrigger className="h-5 w-5 text-neutral-400 " />
+        </div>
       </div>
     </SidebarHeader>
   );
