@@ -3,15 +3,37 @@ import { db } from "@chatgpt/prisma/src/client";
 import { createDataStreamResponse } from "ai";
 import { google } from "@ai-sdk/google";
 import { SYSTEM_PROMPT } from "@chatgpt/ai";
+import useFileStore from "../store/file-store";
 
 export const createMessage = async (prompt: string, chatSessionId: string) => {
-  await db.message.create({
+  const { uploadedFiles } = useFileStore.getState();
+
+  const { id: messageId } = await db.message.create({
     data: {
       content: prompt,
       role: "user",
       chatSessionId,
     },
+    select: {
+      id: true,
+    },
   });
+
+  console.log("BEFORING STORING FILES: ", uploadedFiles.length);
+
+  if (uploadedFiles.length > 0) {
+    await db.file.createMany({
+      data: uploadedFiles.map((file) => ({
+        id: file.id,
+        url: file.url,
+        type: file.type,
+        format: file.format,
+        messageId,
+      })),
+    });
+  }
+
+  console.log("FILE HAI NA ? ", uploadedFiles.length);
 
   const messages = await db.message.findMany({
     where: { chatSessionId },
@@ -59,6 +81,14 @@ export const getMessagesFromSession = async (chatSessionId: string) => {
       id: true,
       content: true,
       role: true,
+      attachments: {
+        select: {
+          id: true,
+          url: true,
+          type: true,
+          format: true,
+        },
+      },
     },
   });
 

@@ -8,24 +8,19 @@ import {
   Textarea,
 } from "@chatgpt/ui";
 import React, { RefObject } from "react";
-import {
-  ArrowUp,
-  AudioLines,
-  Mic,
-  Plus,
-  Settings2,
-  Square,
-} from "lucide-react";
+import { ArrowUp, AudioLines, Mic, Settings2, Square } from "lucide-react";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@chatgpt/utils";
 import { usePathname } from "next/navigation";
-import { toast } from "sonner";
 import useChatStore from "@/lib/store/chat-store";
 import { useCreateMessage } from "@/lib/mutations/message";
 import { ChatRequestOptions } from "ai";
+import FileDropdown from "../layout/drop-down/file";
+import UploadedFile from "../shared/uploaded-file";
+import useFileStore from "@/lib/store/file-store";
 
 const formSchema = z.object({
   prompt: z.string().min(1, {
@@ -53,7 +48,8 @@ export default function NewChatForm({
   const chatSessionId = path.split("/")[2] || "";
 
   const { mutateAsync: createMessage, isPending } = useCreateMessage();
-  const { addMessage, setStreamingMessageId } = useChatStore.getState();
+  const { addMessage, setStreamingMessageId } = useChatStore();
+  const { uploadedFiles } = useFileStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,11 +65,28 @@ export default function NewChatForm({
       if (type === "new") {
         await createMessage({ prompt: values.prompt, chatSessionId: "new" });
       } else {
-        addMessage({
-          id: nanoid(),
-          content: values.prompt,
-          role: "user",
-        });
+        if (uploadedFiles.length > 0) {
+          addMessage({
+            id: nanoid(),
+            content: values.prompt,
+            role: "user",
+            attachments: uploadedFiles.map((file) => ({
+              id: file.id,
+              url: file.url,
+              type: file.type,
+              name: file.name,
+              format: file.format,
+            })),
+          });
+        } else {
+          addMessage({
+            id: nanoid(),
+            content: values.prompt,
+            role: "user",
+          });
+        }
+
+        console.log("BEFORE CALLING STREAM: ", uploadedFiles);
 
         const assistantId = nanoid();
         addMessage({
@@ -87,8 +100,6 @@ export default function NewChatForm({
         await complete(values.prompt, {
           body: { chatSessionId },
         });
-
-        toast.success("Message sent successfully!");
       }
     } catch (error) {
       console.error("Error creating chat session:", error);
@@ -108,8 +119,23 @@ export default function NewChatForm({
         >
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className={"w-full flex-col rounded-[30px] bg-dark-200 p-2 py-3"}
+            className={"w-full flex-col rounded-[30px] bg-dark-200 p-2"}
           >
+            {uploadedFiles.length > 0 && (
+              <ul className="flex justify-start items-center gap-2 p-1 mb-3 w-full overflow-scroll hide-scrollbar">
+                {uploadedFiles.map((file) => (
+                  <UploadedFile
+                    key={file.id}
+                    id={file.id}
+                    type={file.type}
+                    format={file.format}
+                    name={file.name}
+                    url={file.url}
+                  />
+                ))}
+              </ul>
+            )}
+
             <FormField
               control={form.control}
               name="prompt"
@@ -127,16 +153,10 @@ export default function NewChatForm({
               )}
             />
             <div className="flex justify-between items-center w-full">
-              <div className="flex justify-start items-center gap-1">
-                <Button
-                  size={"icon"}
-                  variant={"ghost"}
-                  className="rounded-full"
-                >
-                  <Plus size={17} />
-                </Button>
-                <Button size={"sm"} variant={"ghost"} className="rounded-full">
-                  <Settings2 size={17} />
+              <div className="flex justify-start items-center px-2">
+                <FileDropdown />
+                <Button variant={"ghost"} className="rounded-full">
+                  <Settings2 size={20} />
                   Tools
                 </Button>
               </div>

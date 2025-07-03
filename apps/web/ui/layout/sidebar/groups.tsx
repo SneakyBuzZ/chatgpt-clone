@@ -1,7 +1,5 @@
 "use client";
 
-// @ts-nocheck
-
 import { useGetChatSessions } from "@/lib/queries/chat-session";
 import {
   SidebarGroup,
@@ -15,6 +13,8 @@ import { CirclePlay, Grid2x2, Images, Search, SquarePen } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
+import ChatDropDown from "../drop-down/chat";
 
 export default function Groups() {
   const param = usePathname();
@@ -31,26 +31,33 @@ export default function Groups() {
       <GroupTwo />
       {isPending ? null : (
         <>
-          <SidebarMenu>
-            <SidebarGroup>
-              <SidebarGroupLabel className="text-sm font-normal text-neutral-400 mb-1">
-                Chats
-              </SidebarGroupLabel>
-              {data &&
-                data.map((session) => (
-                  <Link
-                    key={session.id}
-                    href={`/c/${session.id}`}
-                    className={cn(
-                      "block w-full text-left text-sm py-2 px-2 rounded-lg",
-                      path === session.id && "bg-neutral-800 text-white"
-                    )}
-                  >
-                    {session.title}
-                  </Link>
-                ))}
-            </SidebarGroup>
-          </SidebarMenu>
+          {data && data.length > 0 && (
+            <SidebarMenu>
+              <SidebarGroup>
+                <SidebarGroupLabel className="text-sm font-normal text-neutral-400 mb-1">
+                  Chats
+                </SidebarGroupLabel>
+                {data && data.length > 0 && (
+                  <>
+                    {data.map((session) => (
+                      <Link
+                        key={session.id}
+                        href={`/c/${session.id}`}
+                        className={cn(
+                          "group/chat-session flex justify-between items-center w-full text-left text-sm py-2 px-2 rounded-lg transition-colors",
+                          path === session.id && "bg-neutral-800 text-white"
+                        )}
+                      >
+                        {session.title}
+
+                        <ChatDropDown />
+                      </Link>
+                    ))}
+                  </>
+                )}
+              </SidebarGroup>
+            </SidebarMenu>
+          )}
         </>
       )}
     </>

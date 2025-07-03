@@ -2,6 +2,7 @@
 
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
+import remark from "remark-gfm";
 import "highlight.js/styles/github-dark.css";
 import type { Components } from "react-markdown";
 import { cn } from "@chatgpt/utils";
@@ -18,7 +19,7 @@ export default function MarkdownRenderer({ content }: Props) {
 
       if (!lang) {
         return (
-          <code className="px-1 py-0.5 rounded bg-muted text-white font-mono text-sm">
+          <code className="px-1 py-0.5 rounded bg-neutral-700 text-white font-mono text-sm">
             {children}
           </code>
         );
@@ -81,16 +82,18 @@ export default function MarkdownRenderer({ content }: Props) {
     },
     p({ children }) {
       return (
-        <p className="text-[15px] leading-[1.8] text-neutral-300 my-[14px] whitespace-pre-line">
+        <p className="text-[15px] font-medium leading-[1.8] text-neutral-200 my-[14px] whitespace-pre-line">
           {children}
         </p>
       );
     },
     h1({ children }) {
       return (
-        <h1 className="text-[24px] font-semibold text-white my-[28px]">
-          {children}
-        </h1>
+        <>
+          <h1 className="text-[24px] font-semibold text-white my-[28px]">
+            {children}
+          </h1>
+        </>
       );
     },
     h2({ children }) {
@@ -102,7 +105,7 @@ export default function MarkdownRenderer({ content }: Props) {
     },
     h3({ children }) {
       return (
-        <h3 className="text-[17px] font-medium text-white my-[20px]">
+        <h3 className="text-[17px] font-medium text-red-400 my-[20px]">
           {children}
         </h3>
       );
@@ -114,7 +117,7 @@ export default function MarkdownRenderer({ content }: Props) {
 
   return (
     <ReactMarkdown
-      rehypePlugins={[rehypeHighlight]}
+      rehypePlugins={[rehypeHighlight, remark]}
       components={customComponents}
     >
       {content}

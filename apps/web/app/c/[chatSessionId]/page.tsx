@@ -9,34 +9,31 @@ import useChatStore from "@/lib/store/chat-store";
 import NewChatForm from "@/ui/forms/new-chat";
 import ChatBlock from "@/ui/layout/chat-block";
 import PrivateNav from "@/ui/layout/private-nav";
+import useFileStore from "@/lib/store/file-store";
+import { delay } from "@chatgpt/utils";
 
 export default function Page() {
   const path = usePathname();
   const chatSessionId = path.split("/")[2]!;
   useGetChatMessages(chatSessionId);
-  const { messages, updateMessage } = useChatStore();
+  const { messages, updateMessage, streamingMessageId } = useChatStore();
+  const { reset, uploadedFiles } = useFileStore();
 
   const { complete, completion } = useCompletion({
     api: `/api/message/${chatSessionId}`,
+    onFinish: () => {
+      console.log("YES RESET HAPPENING", uploadedFiles.length);
+      reset();
+      delay(3000).then(() => {
+        console.log("YES RESET HAPPENED", uploadedFiles.length);
+      });
+    },
   });
 
   const assistantMessageIdRef = useRef<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const hasMountedRef = useRef(false);
 
   useEffect(() => {
-    const el = scrollRef.current;
-    if (el) {
-      el.scrollTo({
-        top: el.scrollHeight,
-        behavior: "auto",
-      });
-    }
-    hasMountedRef.current = true;
-  }, []);
-
-  useEffect(() => {
-    if (!hasMountedRef.current) return;
     const el = scrollRef.current;
     if (el) {
       el.scrollTo({
@@ -44,7 +41,7 @@ export default function Page() {
         behavior: "smooth",
       });
     }
-  }, [messages, completion]);
+  }, [messages, completion, streamingMessageId]);
 
   useEffect(() => {
     if (assistantMessageIdRef.current && typeof completion === "string") {
@@ -59,7 +56,7 @@ export default function Page() {
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto w-full py-10">
-        <ul className="mx-auto w-[48rem] space-y-10 pt-4 pb-[200px] px-1">
+        <ul className="flex flex-col mx-auto w-[48rem] pt-[50px] pb-[200px] px-1">
           {messages && messages.length > 0 ? (
             <>
               {messages.map((message) => (
@@ -67,6 +64,7 @@ export default function Page() {
                   key={message.id}
                   role={message.role}
                   content={message.content}
+                  attachments={message.attachments}
                 />
               ))}
             </>

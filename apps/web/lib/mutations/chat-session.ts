@@ -11,3 +11,12 @@ export const useCreateChatSession = () => {
     },
   });
 };
+
+export const useDeleteChatSession = () => {
+  return useMutation({
+    mutationFn: async (sessionId: string) => {
+      const response = await api.delete(`/chat/${sessionId}`);
+      return response;
+    },
+  });
+};

@@ -43,6 +43,7 @@ export const getChatSessions = async () => {
 
   const chatSessions = await db.chatSession.findMany({
     where: { userId },
+    orderBy: { createdAt: "desc" },
     select: {
       id: true,
       title: true,
@@ -50,4 +51,12 @@ export const getChatSessions = async () => {
   });
 
   return chatSessions;
+};
+
+export const deleteChatSession = async (sessionId: string) => {
+  await db.chatSession.delete({
+    where: {
+      id: sessionId,
+    },
+  });
 };

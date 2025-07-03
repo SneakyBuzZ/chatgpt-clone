@@ -1,14 +1,24 @@
 import { create } from "zustand";
 
+export type Attachments = {
+  id: string;
+  url: string;
+  type: string;
+  name: string;
+  format: string;
+};
+
 type ChatMessage = {
   id: string;
   content: string;
   role: "user" | "assistant";
+  attachments?: Attachments[];
 };
 
 type State = {
   messages: ChatMessage[];
   streamingMessageId: string | null;
+  isLoading: boolean;
 };
 
 type Actions = {
@@ -17,12 +27,15 @@ type Actions = {
   updateMessage: (chunk: string, id: string) => void;
   removeMessagesAfterId: (id: string) => void;
   setStreamingMessageId: (id: string | null) => void;
+  setIsLoading: (isLoading: boolean) => void;
   reset: () => void;
 };
 
 const useChatStore = create<State & Actions>((set) => ({
   messages: [],
   streamingMessageId: null,
+  isLoading: false,
+  setIsLoading: (isLoading) => set({ isLoading }),
   setMessages: (messages) => set({ messages }),
   addMessage: (message) =>
     set((state) => ({

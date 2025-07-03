@@ -19,6 +19,7 @@
     "@chatgpt/tailwind-config": "workspace:*",
     "@chatgpt/ui": "workspace:*",
     "@chatgpt/utils": "workspace:*",
+    "@chatgpt/cloudinary": "workspace:*",
     "@clerk/nextjs": "^6.22.0",
     "@hookform/resolvers": "^5.1.1",
     "@tanstack/react-query": "^5.80.10",

@@ -8,7 +8,6 @@ export const useGetChatMessages = (chatSessionId: string) => {
     queryKey: ["chat-sessions", chatSessionId],
     queryFn: async () => {
       const response = await api.get(`/message/${chatSessionId}`);
-      console.log("Messages SET", response.data.payload);
       setMessages(response.data.payload ?? []);
       return response.data.payload;
     },
