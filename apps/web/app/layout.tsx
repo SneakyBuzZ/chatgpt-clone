@@ -7,7 +7,7 @@ import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: "ChatGPT",
-  description: "ChatGPT - Your AI Assistant",
+  description: "ChatGPT - Your AI Assistant ",
   icons: {
     icon: "/favicon.svg",
   },
