@@ -13,7 +13,6 @@
   "dependencies": {
     "@ai-sdk/google": "^1.2.19",
     "@ai-sdk/react": "^1.2.12",
-    "@ai-sdk/vercel": "^0.0.1",
     "@chatgpt/ai": "workspace:*",
     "@chatgpt/prisma": "workspace:*",
     "@chatgpt/tailwind-config": "workspace:*",

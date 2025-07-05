@@ -30,12 +30,11 @@
   ],
   "devDependencies": {
     "@types/node": "^20.6.0",
-    "copyfiles": "^2.4.1",
-    "prisma": "^6.9.0",
     "typescript": "^5.4.0"
   },
   "dependencies": {
-    "@prisma/client": "^6.9.0"
+    "@prisma/client": "^6.9.0",
+    "prisma": "^6.11.1"
   },
   "turbo": {
     "outputs": [
