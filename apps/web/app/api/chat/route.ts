@@ -14,7 +14,9 @@ export async function POST(request: Request) {
       `Failed to handle POST request: ${error instanceof Error ? error.message : "Unknown error"}`
     );
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      {
+        error: `${error instanceof Error ? error.message : "Unknown error"}`,
+      },
       { status: 500 }
     );
   }
@@ -36,7 +38,9 @@ export async function GET(request: NextRequest) {
       `Failed to handle GET request: ${error instanceof Error ? error.message : "Unknown error"}`
     );
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      {
+        error: `${error instanceof Error ? error.message : "Unknown error"}`,
+      },
       { status: 500 }
     );
   }

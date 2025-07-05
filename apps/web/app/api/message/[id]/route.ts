@@ -39,6 +39,11 @@ export async function GET(req: NextRequest, context: Context) {
     });
   } catch (error) {
     console.error("Error fetching messages:", error);
-    return new NextResponse("Failed to fetch messages", { status: 500 });
+    return NextResponse.json(
+      {
+        error: `${error instanceof Error ? error.message : "Unknown error"}`,
+      },
+      { status: 500 }
+    );
   }
 }

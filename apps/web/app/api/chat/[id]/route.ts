@@ -1,4 +1,5 @@
 import { deleteChatSession } from "@/lib/actions/chat-session";
+import { NextResponse } from "next/server";
 
 interface Context {
   params: Promise<{
@@ -18,6 +19,11 @@ export async function DELETE(request: Request, context: Context) {
         error instanceof Error ? error.message : "Unknown error"
       }`
     );
-    return new Response("Internal Server Error", { status: 500 });
+    return NextResponse.json(
+      {
+        error: `${error instanceof Error ? error.message : "Unknown error"}`,
+      },
+      { status: 500 }
+    );
   }
 }
