@@ -1,4 +1,4 @@
-import { PrismaClient } from "../schema/generated/prisma";
+import { PrismaClient } from "../generated/prisma";
 
 const globalForPrisma = global as unknown as { db: PrismaClient };
 

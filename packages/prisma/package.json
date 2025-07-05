@@ -2,10 +2,9 @@
   "name": "@chatgpt/prisma",
   "version": "1.0.0",
   "description": "Shared Prisma client and schema utilities for the ChatGPT clone app.",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "pnpm run db:generate && tsc",
     "db:generate": "prisma generate --schema=./schema/schema.prisma",
     "db:push": "prisma db push --schema=./schema/schema.prisma",
     "db:studio": "prisma studio --schema=./schema/schema.prisma"
