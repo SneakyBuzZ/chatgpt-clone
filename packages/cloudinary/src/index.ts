@@ -32,6 +32,4 @@ const getSignature = () => {
   };
 };
 
-console.log("BOL BHAI: ", process.env.CLOUDINARY_CLOUD_NAME);
-
 export { cloudinary, getSignature };
