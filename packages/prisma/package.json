@@ -19,11 +19,13 @@
     "prisma",
     "orm",
     "database",
-    "postgres",
+    "mongodb",
     "typescript"
   ],
   "files": [
     "dist",
+    "generated",
+    ".prisma",
     "schema/schema.prisma"
   ],
   "devDependencies": {
@@ -34,5 +36,12 @@
   },
   "dependencies": {
     "@prisma/client": "^6.9.0"
+  },
+  "turbo": {
+    "outputs": [
+      "dist/**",
+      "generated/**",
+      ".prisma/**"
+    ]
   }
 }
