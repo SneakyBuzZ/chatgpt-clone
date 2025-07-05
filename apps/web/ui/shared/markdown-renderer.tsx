@@ -82,7 +82,7 @@ export default function MarkdownRenderer({ content }: Props) {
     },
     p({ children }) {
       return (
-        <p className="text-[15px] font-medium leading-[1.8] text-neutral-200 my-[14px] whitespace-pre-line">
+        <p className="text-[15px] font-medium leading-[1.8] text-neutral-300 my-[14px] whitespace-pre-line">
           {children}
         </p>
       );
@@ -105,7 +105,7 @@ export default function MarkdownRenderer({ content }: Props) {
     },
     h3({ children }) {
       return (
-        <h3 className="text-[17px] font-medium text-red-400 my-[20px]">
+        <h3 className="text-[17px] font-medium text-neutral-100 my-[20px]">
           {children}
         </h3>
       );

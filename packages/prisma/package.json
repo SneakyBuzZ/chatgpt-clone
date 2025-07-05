@@ -1,18 +1,37 @@
 {
   "name": "@chatgpt/prisma",
   "version": "1.0.0",
-  "description": "Prisma utility functions for Chatgpt",
-  "main": "./src/index.ts",
+  "description": "Shared Prisma client and schema utilities for the ChatGPT clone app.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "db:generate": "npx prisma generate --schema=./schema/schema.prisma",
-    "db:push": "npx prisma db push --schema=./schema/schema.prisma",
-    "db:studio": "npx prisma studio --schema=./schema/schema.prisma"
+    "build": "tsc",
+    "db:generate": "prisma generate --schema=./schema/schema.prisma",
+    "db:push": "prisma db push --schema=./schema/schema.prisma",
+    "db:studio": "prisma studio --schema=./schema/schema.prisma"
   },
   "author": "Kaushik Katikala",
-  "license": "ISC",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SneakyBuzZ/chatgpt-clone"
+  },
+  "keywords": [
+    "prisma",
+    "orm",
+    "database",
+    "postgres",
+    "typescript"
+  ],
+  "files": [
+    "dist",
+    "schema/schema.prisma"
+  ],
   "devDependencies": {
-    "@types/node": "^24.0.3",
-    "prisma": "^6.9.0"
+    "@types/node": "^20.6.0",
+    "copyfiles": "^2.4.1",
+    "prisma": "^6.9.0",
+    "typescript": "^5.4.0"
   },
   "dependencies": {
     "@prisma/client": "^6.9.0"

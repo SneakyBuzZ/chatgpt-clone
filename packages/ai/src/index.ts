@@ -1,6 +1,9 @@
 import path from "path";
-import dotenv from "dotenv";
-dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+if (process.env.NODE_ENV !== "production") {
+  import("dotenv").then((dotenv) => {
+    dotenv.config({ path: path.resolve(process.cwd(), "../../.env") });
+  });
+}
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 export { streamText } from "ai";

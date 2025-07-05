@@ -1,19 +1,5 @@
 import { create } from "zustand";
-
-export type Attachments = {
-  id: string;
-  url: string;
-  type: string;
-  name: string;
-  format: string;
-};
-
-type ChatMessage = {
-  id: string;
-  content: string;
-  role: "user" | "assistant";
-  attachments?: Attachments[];
-};
+import { ChatMessage } from "../types/message";
 
 type State = {
   messages: ChatMessage[];

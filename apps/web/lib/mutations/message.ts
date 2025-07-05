@@ -7,7 +7,7 @@ export const useCreateMessage = () => {
       const response = await api.post(`/message/${payload.chatSessionId}`, {
         prompt: payload.prompt,
       });
-      return response;
+      return response.data;
     },
   });
 };

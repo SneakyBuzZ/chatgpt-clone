@@ -11,10 +11,10 @@ import {
 } from "@chatgpt/ui";
 
 import { Archive, Ellipsis, Pencil, Share, Trash2 } from "lucide-react";
-import { useDeleteChatSession } from "@/lib/mutations/chat-session";
+// import { useDeleteChatSession } from "@/lib/mutations/chat-session";
 
 export default function ChatDropDown() {
-  const { mutateAsync: deleteChatSession } = useDeleteChatSession();
+  // const { mutateAsync: deleteChatSession } = useDeleteChatSession();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>

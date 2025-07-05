@@ -1,12 +1,5 @@
 import { create } from "zustand";
-
-type UploadedFile = {
-  id: string;
-  url: string;
-  type: string;
-  name: string;
-  format: string;
-};
+import { UploadedFile } from "../types/file";
 
 type State = {
   uploadedFiles: UploadedFile[];

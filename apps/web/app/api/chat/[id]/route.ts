@@ -1,9 +1,9 @@
 import { deleteChatSession } from "@/lib/actions/chat-session";
 
 interface Context {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function DELETE(request: Request, context: Context) {

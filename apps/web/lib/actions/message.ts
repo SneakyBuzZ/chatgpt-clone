@@ -1,13 +1,15 @@
 import { streamText } from "ai";
-import { db } from "@chatgpt/prisma/src/client";
+import { db } from "@chatgpt/prisma";
 import { createDataStreamResponse } from "ai";
 import { google } from "@ai-sdk/google";
 import { SYSTEM_PROMPT } from "@chatgpt/ai";
-import useFileStore from "../store/file-store";
+import { UploadedFile } from "../types/file";
 
-export const createMessage = async (prompt: string, chatSessionId: string) => {
-  const { uploadedFiles } = useFileStore.getState();
-
+export const createMessage = async (
+  prompt: string,
+  chatSessionId: string,
+  uploadedFiles: UploadedFile[]
+) => {
   const { id: messageId } = await db.message.create({
     data: {
       content: prompt,
@@ -19,21 +21,18 @@ export const createMessage = async (prompt: string, chatSessionId: string) => {
     },
   });
 
-  console.log("BEFORING STORING FILES: ", uploadedFiles.length);
-
-  if (uploadedFiles.length > 0) {
+  if (uploadedFiles && uploadedFiles.length > 0) {
     await db.file.createMany({
       data: uploadedFiles.map((file) => ({
         id: file.id,
         url: file.url,
+        name: file.name,
         type: file.type,
         format: file.format,
         messageId,
       })),
     });
   }
-
-  console.log("FILE HAI NA ? ", uploadedFiles.length);
 
   const messages = await db.message.findMany({
     where: { chatSessionId },
@@ -87,6 +86,7 @@ export const getMessagesFromSession = async (chatSessionId: string) => {
           url: true,
           type: true,
           format: true,
+          name: true,
         },
       },
     },

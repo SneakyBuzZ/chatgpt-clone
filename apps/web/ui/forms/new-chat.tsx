@@ -1,231 +1,146 @@
 "use client";
 
-import {
-  Button,
-  FormControl,
-  FormField,
-  FormItem,
-  Textarea,
-} from "@chatgpt/ui";
-import React, { RefObject } from "react";
-import { ArrowUp, AudioLines, Mic, Settings2, Square } from "lucide-react";
-import { nanoid } from "nanoid";
-import { z } from "zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { cn } from "@chatgpt/utils";
-import { usePathname } from "next/navigation";
-import useChatStore from "@/lib/store/chat-store";
+import { z } from "zod";
+import { nanoid } from "nanoid";
+import { RefObject } from "react";
+
+import { FormField, FormItem, FormControl, Textarea } from "@chatgpt/ui";
 import { useCreateMessage } from "@/lib/mutations/message";
-import { ChatRequestOptions } from "ai";
-import FileDropdown from "../layout/drop-down/file";
-import UploadedFile from "../shared/uploaded-file";
+import useChatStore from "@/lib/store/chat-store";
 import useFileStore from "@/lib/store/file-store";
+import FilePreviewBar from "@/ui/shared/file-preview-bar";
+import InputToolbar from "@/ui/shared/input-toolbar";
+import { cn } from "@chatgpt/utils";
+import { ChatMessage } from "@/lib/types/message";
+import { UploadedFile } from "@/lib/types/file";
 
 const formSchema = z.object({
-  prompt: z.string().min(1, {
-    message: "Prompt is required",
-  }),
+  prompt: z.string().min(1, { message: "Prompt is required" }),
 });
 
 interface NewChatFormProps {
   type?: "new" | "existing";
   className?: string;
-  complete: (
+  complete?: (
     prompt: string,
-    options?: ChatRequestOptions
+    options?: { body: { uploadedFiles: UploadedFile[] } }
   ) => Promise<string | null | undefined>;
-  assistantMessageIdRef: RefObject<string | null>;
+  assistantMessageIdRef?: RefObject<string | null>;
 }
 
 export default function NewChatForm({
-  type,
+  type = "new",
   className,
   complete,
   assistantMessageIdRef,
 }: NewChatFormProps) {
-  const path = usePathname();
-  const chatSessionId = path.split("/")[2] || "";
-
+  const { uploadedFiles } = useFileStore();
   const { mutateAsync: createMessage, isPending } = useCreateMessage();
   const { addMessage, setStreamingMessageId } = useChatStore();
-  const { uploadedFiles } = useFileStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      prompt: "",
-    },
+    defaultValues: { prompt: "" },
   });
 
-  const { prompt } = form.watch();
+  const { watch, handleSubmit, reset, control } = form;
+  const prompt = watch("prompt");
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function handleSend(values: z.infer<typeof formSchema>) {
     try {
+      const userMessage: ChatMessage = {
+        id: nanoid(),
+        content: values.prompt,
+        role: "user",
+        attachments: uploadedFiles.map((file) => ({
+          id: file.id,
+          url: file.url,
+          type: file.type,
+          name: file.name,
+          format: file.format,
+        })),
+      };
+
       if (type === "new") {
         await createMessage({ prompt: values.prompt, chatSessionId: "new" });
-      } else {
-        if (uploadedFiles.length > 0) {
-          addMessage({
-            id: nanoid(),
-            content: values.prompt,
-            role: "user",
-            attachments: uploadedFiles.map((file) => ({
-              id: file.id,
-              url: file.url,
-              type: file.type,
-              name: file.name,
-              format: file.format,
-            })),
-          });
-        } else {
-          addMessage({
-            id: nanoid(),
-            content: values.prompt,
-            role: "user",
-          });
-        }
-
-        console.log("BEFORE CALLING STREAM: ", uploadedFiles);
-
-        const assistantId = nanoid();
-        addMessage({
-          id: assistantId,
-          content: "",
-          role: "assistant",
-        });
-        assistantMessageIdRef.current = assistantId;
-        setStreamingMessageId(assistantId);
-
-        await complete(values.prompt, {
-          body: { chatSessionId },
-        });
+        return;
       }
+
+      addMessage(userMessage);
+
+      const assistantId = nanoid();
+      addMessage({ id: assistantId, content: "", role: "assistant" });
+
+      if (!complete || !assistantMessageIdRef) {
+        throw new Error("Missing complete function or assistantMessageIdRef");
+      }
+
+      assistantMessageIdRef.current = assistantId;
+      setStreamingMessageId(assistantId);
+
+      await complete(values.prompt, {
+        body: {
+          uploadedFiles: uploadedFiles.map((file) => ({
+            id: file.id,
+            url: file.url,
+            name: file.name,
+            type: file.type,
+            format: file.format,
+          })),
+        },
+      });
     } catch (error) {
-      console.error("Error creating chat session:", error);
+      console.error("Prompt submission error:", error);
     } finally {
-      form.reset();
+      reset();
     }
   }
 
   return (
-    <Headings type={type}>
-      <FormProvider {...form}>
-        <div
-          className={cn(
-            "flex w-[770px] flex-col justify-center items-center bg-dark-400 pb-2",
-            className
-          )}
+    <FormProvider {...form}>
+      <div
+        className={cn(
+          "flex w-[770px] flex-col justify-center items-center bg-dark-400 pb-2",
+          className
+        )}
+      >
+        <form
+          onSubmit={handleSubmit(handleSend)}
+          className="w-full flex flex-col bg-dark-200 rounded-3xl p-2"
         >
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className={"w-full flex-col rounded-[30px] bg-dark-200 p-2"}
-          >
-            {uploadedFiles.length > 0 && (
-              <ul className="flex justify-start items-center gap-2 p-1 mb-3 w-full overflow-scroll hide-scrollbar">
-                {uploadedFiles.map((file) => (
-                  <UploadedFile
-                    key={file.id}
-                    id={file.id}
-                    type={file.type}
-                    format={file.format}
-                    name={file.name}
-                    url={file.url}
-                  />
-                ))}
-              </ul>
-            )}
-
-            <FormField
-              control={form.control}
-              name="prompt"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormControl>
-                    <Textarea
-                      autoComplete="off"
-                      placeholder="Ask anything"
-                      className="max-h-[200px] text-base resize-none text-neutral-200"
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-between items-center w-full">
-              <div className="flex justify-start items-center px-2">
-                <FileDropdown />
-                <Button variant={"ghost"} className="rounded-full">
-                  <Settings2 size={20} />
-                  Tools
-                </Button>
-              </div>
-              <div className="flex justify-center items-center gap-1 ">
-                <Button
-                  size={"icon"}
-                  variant={"ghost"}
-                  className="rounded-full"
-                >
-                  <Mic size={17} />
-                </Button>
-                {prompt.length > 0 ? (
-                  <>
-                    {isPending ? (
-                      <Button
-                        size={"icon"}
-                        className="rounded-full bg-white transition-all"
-                      >
-                        <Square fill="#000" size={17} />
-                      </Button>
-                    ) : (
-                      <Button
-                        size={"icon"}
-                        className="transition-all"
-                        type="submit"
-                      >
-                        <ArrowUp size={17} strokeWidth={4} />
-                      </Button>
-                    )}
-                  </>
-                ) : (
-                  <Button
-                    size={"icon"}
-                    variant={"secondary"}
-                    className="rounded-full"
-                  >
-                    <AudioLines size={17} />
-                  </Button>
-                )}
-              </div>
-            </div>
-          </form>
-          {type === "existing" && (
-            <span className="text-xs text-neutral-100 mt-2">
-              ChatGPT can make mistakes. Check important info. See
-              <span className="underline"> Cookie Preferences.</span>
-            </span>
+          {uploadedFiles && uploadedFiles.length > 0 && (
+            <FilePreviewBar files={uploadedFiles} />
           )}
-        </div>
-      </FormProvider>
-    </Headings>
-  );
-}
 
-function Headings({
-  type = "new",
-  children,
-}: {
-  type?: "new" | "existing";
-  children: React.ReactNode;
-}) {
-  if (type === "existing") {
-    return <>{children}</>;
-  }
+          <FormField
+            control={control}
+            name="prompt"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    placeholder="Ask anything..."
+                    className="max-h-[200px] text-base resize-none text-neutral-200"
+                    autoComplete="off"
+                    aria-label="Prompt input"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center gap-8 -translate-y-3">
-      <h1 className="text-3xl text-white">Whats on the agenda today?</h1>
-      {children}
-    </div>
+          <InputToolbar isPending={isPending} prompt={prompt} />
+        </form>
+
+        {type === "existing" && (
+          <p className="text-xs text-neutral-400 mt-2 text-center">
+            ChatGPT can make mistakes. Double-check important info.
+          </p>
+        )}
+      </div>
+    </FormProvider>
   );
 }

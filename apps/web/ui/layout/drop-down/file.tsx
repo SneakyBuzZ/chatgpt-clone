@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,60 +8,42 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  Button,
 } from "@chatgpt/ui";
-import { FilePlus2, LayoutGrid, Plus } from "lucide-react";
+import { FilePlus2, LayoutGrid, Plus, Loader2 } from "lucide-react";
 import { nanoid } from "nanoid";
-import { api } from "@/lib/axios";
-import axios from "axios";
 import useFileStore from "@/lib/store/file-store";
+import { uploadToCloudinary } from "@/lib/actions/file";
 
 export default function FileDropdown() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addFile } = useFileStore();
+  const [uploading, setUploading] = useState(false);
 
-  async function handleFileUpload(file: File) {
-    const response = await api.get("/file");
-    const { cloudName, apiKey, timestamp, signature, folder } = response.data;
+  const handleFileUpload = async (file: File) => {
+    try {
+      setUploading(true);
+      const { url, type, format, name } = await uploadToCloudinary(file);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("api_key", apiKey);
-    formData.append("timestamp", timestamp);
-    formData.append("signature", signature);
-    formData.append("folder", folder);
-
-    const mimeType = file.type;
-
-    const resourceType = mimeType.startsWith("image/") ? "image" : "raw";
-
-    const uploadRes = await axios.post(
-      `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    const url = uploadRes.data.secure_url;
-    const extension = file.name.split(".").pop() || "";
-
-    addFile({
-      id: nanoid(),
-      url,
-      type: resourceType,
-      name: file.name,
-      format: extension,
-    });
-  }
-
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
+      addFile({
+        id: nanoid(),
+        url,
+        type,
+        name: name,
+        format,
+      });
+    } catch (err) {
+      console.error("Upload error", err);
+    } finally {
+      setUploading(false);
     }
-  }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    files.forEach(handleFileUpload);
+    e.target.value = "";
+  };
 
   return (
     <>
@@ -70,31 +52,43 @@ export default function FileDropdown() {
         onChange={handleChange}
         ref={fileInputRef}
         className="hidden"
+        multiple
+        accept=".jpg,.jpeg,.png,.pdf,.txt,.doc,.docx,.csv"
       />
 
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Plus size={20} color="white" />
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            aria-label="Add file or image"
+          >
+            {uploading ? (
+              <Loader2 className="animate-spin w-4 h-4" />
+            ) : (
+              <Plus size={20} className="text-white" />
+            )}
+          </Button>
         </DropdownMenuTrigger>
+
         <DropdownMenuContent
           align="start"
-          className="w-52 bg-dark-200 border-0 rounded-2xl shadow-2xl shadow-black/40 text-white p-[6px]"
+          className="w-52 bg-dark-200 border-0 rounded-2xl shadow-xl p-1 text-white"
         >
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="hover:bg-dark-100 cursor-pointer border-0 focus:outline-none rounded-lg">
+            <DropdownMenuSubTrigger className="hover:bg-dark-100 cursor-pointer rounded-lg">
               <LayoutGrid size={17} />
               Add from apps
             </DropdownMenuSubTrigger>
           </DropdownMenuSub>
 
           <DropdownMenuItem
-            className="rounded-lg"
-            onClick={() => {
-              fileInputRef.current?.click();
-            }}
+            className="rounded-lg cursor-pointer"
+            onClick={() => fileInputRef.current?.click()}
           >
-            <FilePlus2 />
-            Add photo and files
+            <FilePlus2 size={17} />
+            Add photo or file
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

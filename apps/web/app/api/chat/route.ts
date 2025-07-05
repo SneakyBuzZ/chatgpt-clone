@@ -7,11 +7,8 @@ export async function POST(request: Request) {
   try {
     const { prompt } = await request.json();
 
-    await createChatSession(prompt);
-    return NextResponse.json(
-      { message: "Chat session created successfully" },
-      { status: 201 }
-    );
+    const id = await createChatSession(prompt);
+    return NextResponse.json({ id }, { status: 201 });
   } catch (error) {
     console.error(
       `Failed to handle POST request: ${error instanceof Error ? error.message : "Unknown error"}`

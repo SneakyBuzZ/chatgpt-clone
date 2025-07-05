@@ -1,5 +1,5 @@
 import { model } from "@chatgpt/ai";
-import { db } from "@chatgpt/prisma/src/client";
+import { db } from "@chatgpt/prisma";
 import { auth } from "@clerk/nextjs/server";
 
 export const createChatSession = async (prompt: string) => {

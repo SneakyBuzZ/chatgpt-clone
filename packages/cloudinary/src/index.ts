@@ -1,6 +1,9 @@
-import dotenv from "dotenv";
 import path from "path";
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+if (process.env.NODE_ENV !== "production") {
+  import("dotenv").then((dotenv) => {
+    dotenv.config({ path: path.resolve(process.cwd(), "../../.env") });
+  });
+}
 
 import { v2 as cloudinary } from "cloudinary";
 
@@ -28,5 +31,7 @@ const getSignature = () => {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
   };
 };
+
+console.log("BOL BHAI: ", process.env.CLOUDINARY_CLOUD_NAME);
 
 export { cloudinary, getSignature };
