@@ -2,7 +2,7 @@ import { streamText } from "ai";
 import { db } from "@chatgpt/prisma";
 import { createDataStreamResponse } from "ai";
 import { google } from "@ai-sdk/google";
-import { SYSTEM_PROMPT } from "@chatgpt/ai";
+import { memo, SYSTEM_PROMPT } from "@chatgpt/ai";
 import { UploadedFile } from "../types/file";
 
 export const createMessage = async (
@@ -43,11 +43,28 @@ export const createMessage = async (
     content: msg.content,
   }));
 
+  const memory = await memo.search(prompt, {
+    user_id: chatSessionId,
+    limit: 2,
+  });
+
+  const memoHistory = memory.map(
+    (item) =>
+      ({
+        role: "user",
+        content: `Here's a relevant memory: ${item.data?.memory}`,
+      }) as const
+  );
+
   return createDataStreamResponse({
     execute: (dataStream) => {
       const result = streamText({
         model: google("gemini-1.5-flash"),
-        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...history],
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...memoHistory,
+          ...history,
+        ],
         onFinish: async ({ text }) => {
           await db.message.create({
             data: {

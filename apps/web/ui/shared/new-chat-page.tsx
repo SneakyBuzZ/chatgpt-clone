@@ -9,9 +9,9 @@ export default function NewChatPage() {
 
   if (!prompt) {
     return (
-      <main className="relative flex flex-col items-center justify-center h-full">
+      <main className="relative flex flex-col items-center justify-center h-full pb-20 px-16 md:px-5">
         <PrivateNav />
-        <h3 className="text-[2rem] text-neutral-200 mb-8">
+        <h3 className="text-[1.7rem] text-neutral-200 mb-8">
           What&apos;s on your mind today?
         </h3>
         <NewChatForm type="new" />

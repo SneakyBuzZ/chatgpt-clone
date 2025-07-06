@@ -1,6 +1,7 @@
 import { model } from "@chatgpt/ai";
 import { db } from "@chatgpt/prisma";
 import { auth } from "@clerk/nextjs/server";
+import { memo, Message } from "@chatgpt/ai";
 
 export const createChatSession = async (prompt: string) => {
   const { userId } = await auth();
@@ -29,6 +30,25 @@ export const createChatSession = async (prompt: string) => {
     select: {
       id: true,
     },
+  });
+
+  const messages: Message[] = [
+    {
+      role: "user",
+      content: `
+      This is a chat session with the title: ${newChatSessionName}
+      The user has asked the following question:
+      ${prompt}
+      Please remember this session and the user's question for future reference.
+      You can use this information to provide context in future interactions.
+      The user is looking for a concise and helpful response to their question.
+      Please ensure that you provide accurate and relevant information based on the user's query.
+      `,
+    },
+  ];
+
+  await memo.add(messages, {
+    user_id: session.id,
   });
 
   return session.id;

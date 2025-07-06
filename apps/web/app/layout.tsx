@@ -22,10 +22,10 @@ export default function RootLayout({
     <QueryProvider>
       <ClerkProvider>
         <html lang="en">
-          <body>
+          <body className="w-full flex justify-center items-center">
             <SidebarProvider>
               <AppSidebar />
-              <section className="flex flex-col w-full h-screen">
+              <section className="flex flex-1 flex-col w-full h-screen">
                 {children}
               </section>
             </SidebarProvider>

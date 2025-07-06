@@ -117,7 +117,7 @@ export default function NewChatForm({
     <FormProvider {...form}>
       <div
         className={cn(
-          "flex w-[770px] flex-col justify-center items-center bg-dark-400 pb-2",
+          "flex w-full lg:w-[640px] xl:w-[770px] flex-col justify-center items-center bg-dark-400 pb-2",
           className
         )}
       >

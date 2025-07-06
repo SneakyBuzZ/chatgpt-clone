@@ -9,6 +9,7 @@ interface Context {
 
 export async function DELETE(request: Request, context: Context) {
   const { id } = await context.params;
+  request.json();
 
   try {
     await deleteChatSession(id);

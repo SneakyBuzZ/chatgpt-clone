@@ -12,7 +12,7 @@ import Image from "next/image";
 export default function Model() {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild className="hidden md:flex">
         <Button
           variant={"ghost"}
           className="px-2 rounded-lg text-lg font-normal"

@@ -55,14 +55,14 @@ export default function ChatPage() {
   }, [completion, updateMessage]);
 
   return (
-    <main className="flex flex-col h-full min-h-screen bg-dark-400">
+    <main className="flex flex-1 flex-col w-full min-h-screen bg-dark-400">
       <div className="sticky top-0 z-40 w-full">
         <PrivateNav />
       </div>
 
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto px-2 py-8"
+        className="flex-1 overflow-y-auto px-14 py-8"
         role="log"
         aria-live="polite"
       >

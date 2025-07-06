@@ -5,7 +5,7 @@ import Footer from "@/ui/layout/sidebar/footer";
 
 export function AppSidebar() {
   return (
-    <Sidebar>
+    <Sidebar className="hidden sm:flex">
       <Header />
       <SidebarContent className="text-neutral-100 gap-2">
         <Groups />
