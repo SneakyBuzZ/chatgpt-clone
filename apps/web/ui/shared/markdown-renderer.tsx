@@ -90,7 +90,7 @@ export default function MarkdownRenderer({ content }: Props) {
     h1({ children }) {
       return (
         <>
-          <h1 className="text-[24px] font-semibold text-white my-[28px]">
+          <h1 className="text-[24px] font-semibold text-white my-[28px] mt-[40px]">
             {children}
           </h1>
         </>
@@ -98,7 +98,7 @@ export default function MarkdownRenderer({ content }: Props) {
     },
     h2({ children }) {
       return (
-        <h2 className="text-[20px] font-semibold text-white my-[24px]">
+        <h2 className="text-[20px] font-semibold text-white my-[24px] ">
           {children}
         </h2>
       );

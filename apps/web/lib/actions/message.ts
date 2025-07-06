@@ -35,6 +35,68 @@ export const createMessage = async (
   const messages = await db.message.findMany({
     where: { chatSessionId },
     orderBy: { createdAt: "asc" },
+    take: 10,
+  });
+
+  const history = messages.map((msg) => ({
+    role: msg.role,
+    content: msg.content,
+  }));
+
+  return createDataStreamResponse({
+    execute: (dataStream) => {
+      const result = streamText({
+        model: google("gemini-1.5-flash"),
+        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...history],
+        onFinish: async ({ text }) => {
+          await db.message.create({
+            data: {
+              chatSessionId,
+              role: "assistant",
+              content: text,
+            },
+          });
+        },
+      });
+
+      result.mergeIntoDataStream(dataStream);
+    },
+    onError: (error) => {
+      console.error(
+        "Error in createMessage action:",
+        error instanceof Error ? error.message : String(error)
+      );
+      return error instanceof Error ? error.message : String(error);
+    },
+  });
+};
+
+export const updateMessage = async (
+  prompt: string,
+  messageId: string,
+  chatSessionId: string
+) => {
+  const { createdAt } = await db.message.update({
+    where: { id: messageId },
+    data: {
+      content: prompt,
+    },
+    select: {
+      createdAt: true,
+    },
+  });
+
+  await db.message.deleteMany({
+    where: {
+      chatSessionId,
+      createdAt: { gt: createdAt },
+    },
+  });
+
+  const messages = await db.message.findMany({
+    where: { chatSessionId },
+    orderBy: { createdAt: "asc" },
+    take: 10,
   });
 
   const history = messages.map((msg) => ({

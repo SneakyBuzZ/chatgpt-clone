@@ -27,7 +27,13 @@ interface NewChatFormProps {
   className?: string;
   complete?: (
     prompt: string,
-    options?: { body: { uploadedFiles: UploadedFile[] } }
+    options?: {
+      body: {
+        uploadedFiles: UploadedFile[];
+        isEdit: boolean;
+        messageId?: string;
+      };
+    }
   ) => Promise<string | null | undefined>;
   assistantMessageIdRef?: RefObject<string | null>;
 }
@@ -97,6 +103,7 @@ export default function NewChatForm({
             type: file.type,
             format: file.format,
           })),
+          isEdit: false,
         },
       });
     } catch (error) {

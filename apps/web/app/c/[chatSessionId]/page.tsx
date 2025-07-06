@@ -86,6 +86,9 @@ export default function ChatPage() {
                   role={msg.role}
                   content={msg.content}
                   attachments={msg.attachments}
+                  messageId={msg.id}
+                  assistantMessageIdRef={assistantMessageIdRef}
+                  complete={complete}
                 />
               ))}
             </ul>

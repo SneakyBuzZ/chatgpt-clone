@@ -1,4 +1,8 @@
-import { createMessage, getMessagesFromSession } from "@/lib/actions/message";
+import {
+  createMessage,
+  getMessagesFromSession,
+  updateMessage,
+} from "@/lib/actions/message";
 import { NextRequest, NextResponse } from "next/server";
 
 interface Context {
@@ -9,10 +13,17 @@ interface Context {
 
 export async function POST(req: NextRequest, context: Context) {
   const { id: chatSessionId } = await context.params;
-  const { prompt, uploadedFiles } = await req.json();
+  const { prompt, uploadedFiles, isEdit, messageId } = await req.json();
 
-  if (!prompt) {
+  if (!prompt || !chatSessionId) {
     return new NextResponse("Missing prompt or chatSessionId", { status: 400 });
+  }
+
+  if (isEdit) {
+    if (!messageId) {
+      return new NextResponse("Missing messageId for edit", { status: 400 });
+    }
+    return await updateMessage(prompt, messageId, chatSessionId);
   }
 
   return await createMessage(prompt, chatSessionId, uploadedFiles);
