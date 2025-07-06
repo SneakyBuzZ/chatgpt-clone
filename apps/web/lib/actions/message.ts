@@ -16,12 +16,10 @@ export const createMessage = async (
       role: "user",
       chatSessionId,
     },
-    select: {
-      id: true,
-    },
+    select: { id: true },
   });
 
-  if (uploadedFiles && uploadedFiles.length > 0) {
+  if (uploadedFiles?.length > 0) {
     await db.file.createMany({
       data: uploadedFiles.map((file) => ({
         id: file.id,

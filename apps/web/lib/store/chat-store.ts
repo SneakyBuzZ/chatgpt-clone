@@ -42,6 +42,7 @@ const useChatStore = create<State & Actions>((set) => ({
 
       return { messages: updatedMessages };
     }),
+
   removeMessagesAfterId: (id) =>
     set((state) => {
       const index = state.messages.findIndex((msg) => msg.id === id);

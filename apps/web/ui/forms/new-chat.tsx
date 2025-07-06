@@ -7,13 +7,15 @@ import { nanoid } from "nanoid";
 import { RefObject } from "react";
 
 import { FormField, FormItem, FormControl, Textarea } from "@chatgpt/ui";
-import { useCreateMessage } from "@/lib/mutations/message";
 import useChatStore from "@/lib/store/chat-store";
 import useFileStore from "@/lib/store/file-store";
 import FilePreviewBar from "@/ui/shared/file-preview-bar";
 import InputToolbar from "@/ui/shared/input-toolbar";
 import { cn } from "@chatgpt/utils";
 import { ChatMessage } from "@/lib/types/message";
+import { useNewSessionStore } from "@/lib/store/new-session-store";
+import { useCreateChatSession } from "@/lib/mutations/chat-session";
+import { useRouter } from "next/navigation";
 import { UploadedFile } from "@/lib/types/file";
 
 const formSchema = z.object({
@@ -37,8 +39,10 @@ export default function NewChatForm({
   assistantMessageIdRef,
 }: NewChatFormProps) {
   const { uploadedFiles } = useFileStore();
-  const { mutateAsync: createMessage, isPending } = useCreateMessage();
   const { addMessage, setStreamingMessageId } = useChatStore();
+  const { setPrompt, addAttachments } = useNewSessionStore();
+  const { mutateAsync: createChatSession, isPending } = useCreateChatSession();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -64,7 +68,11 @@ export default function NewChatForm({
       };
 
       if (type === "new") {
-        await createMessage({ prompt: values.prompt, chatSessionId: "new" });
+        setPrompt(values.prompt);
+        addAttachments(uploadedFiles);
+        const response = await createChatSession({ prompt: values.prompt });
+        const { id } = response.data;
+        router.push(`/c/${id}`);
         return;
       }
 

@@ -15,15 +15,17 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import ChatDropDown from "../drop-down/chat";
+import { useNewSessionStore } from "@/lib/store/new-session-store";
 
 export default function Groups() {
   const param = usePathname();
   const [path, setPath] = useState(param.split("/")[2] || "new");
   const { data, isPending } = useGetChatSessions();
+  const { prompt, reset } = useNewSessionStore();
 
   useEffect(() => {
     setPath(param.split("/")[2] || "new");
-  }, [param]);
+  }, [param, prompt, reset]);
 
   return (
     <>

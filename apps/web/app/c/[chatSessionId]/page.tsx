@@ -11,19 +11,35 @@ import ChatBlock from "@/ui/layout/chat-block";
 import NewChatForm from "@/ui/forms/new-chat";
 
 import { useChatCompletion } from "@/lib/hooks/use-chat-completion";
+import { useNewSessionStore } from "@/lib/store/new-session-store";
+import { useCreateMessage } from "@/lib/mutations/message";
 
 export default function ChatPage() {
   const pathname = usePathname();
   const chatSessionId = pathname.split("/")[2]!;
 
   const { complete, completion } = useChatCompletion(chatSessionId);
+  const { prompt, attachments, reset } = useNewSessionStore();
+  const { mutateAsync: createMessage } = useCreateMessage();
+  const { updateMessage } = useChatStore();
 
-  const { messages, updateMessage, streamingMessageId } = useChatStore();
+  const { messages, streamingMessageId } = useChatStore();
 
   const assistantMessageIdRef = useRef<string | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useGetChatMessages(chatSessionId);
+
+  useEffect(() => {
+    if (!prompt) return;
+    createMessage({
+      chatSessionId,
+      prompt,
+    }).then(() => {
+      reset();
+      window.location.reload();
+    });
+  }, [chatSessionId, prompt, reset, createMessage]);
 
   useEffect(() => {
     const el = scrollContainerRef.current;
@@ -50,16 +66,31 @@ export default function ChatPage() {
         role="log"
         aria-live="polite"
       >
-        <ul className="max-w-3xl mx-auto space-y-4 pb-32">
-          {messages.map((msg) => (
-            <ChatBlock
-              key={msg.id}
-              role={msg.role}
-              content={msg.content}
-              attachments={msg.attachments}
-            />
-          ))}
-        </ul>
+        {prompt ? (
+          <>
+            <ul className="max-w-3xl mx-auto space-y-4 pb-32">
+              <ChatBlock
+                key="initial-prompt"
+                role="user"
+                content={prompt}
+                attachments={attachments}
+              />
+            </ul>
+          </>
+        ) : (
+          <>
+            <ul className="max-w-3xl mx-auto space-y-4 pb-32">
+              {messages.map((msg) => (
+                <ChatBlock
+                  key={msg.id}
+                  role={msg.role}
+                  content={msg.content}
+                  attachments={msg.attachments}
+                />
+              ))}
+            </ul>
+          </>
+        )}
       </div>
 
       <div className="sticky bottom-0 z-50 w-full bg-dark-400 px-4 flex justify-center">

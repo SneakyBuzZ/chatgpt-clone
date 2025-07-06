@@ -1,12 +1,10 @@
 import { getChatSessions } from "@/lib/actions/chat-session";
 import { NextRequest, NextResponse } from "next/server";
-
-const { createChatSession } = await import("@/lib/actions/chat-session");
+import { createChatSession } from "@/lib/actions/chat-session";
 
 export async function POST(request: Request) {
   try {
     const { prompt } = await request.json();
-
     const id = await createChatSession(prompt);
     return NextResponse.json({ id }, { status: 201 });
   } catch (error) {

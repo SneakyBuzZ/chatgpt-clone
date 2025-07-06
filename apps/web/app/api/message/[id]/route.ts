@@ -1,4 +1,3 @@
-import { createChatSession } from "@/lib/actions/chat-session";
 import { createMessage, getMessagesFromSession } from "@/lib/actions/message";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,12 +8,8 @@ interface Context {
 }
 
 export async function POST(req: NextRequest, context: Context) {
-  let { id: chatSessionId } = await context.params;
+  const { id: chatSessionId } = await context.params;
   const { prompt, uploadedFiles } = await req.json();
-
-  if (chatSessionId === "new") {
-    chatSessionId = await createChatSession(prompt);
-  }
 
   if (!prompt) {
     return new NextResponse("Missing prompt or chatSessionId", { status: 400 });
