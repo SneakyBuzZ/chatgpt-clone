@@ -4,7 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { nanoid } from "nanoid";
-import { RefObject } from "react";
+import { RefObject, useState } from "react";
 
 import { FormField, FormItem, FormControl, Textarea } from "@chatgpt/ui";
 import useChatStore from "@/lib/store/chat-store";
@@ -15,7 +15,7 @@ import { cn } from "@chatgpt/utils";
 import { ChatMessage } from "@/lib/types/message";
 import { useNewSessionStore } from "@/lib/store/new-session-store";
 import { useCreateChatSession } from "@/lib/mutations/chat-session";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { UploadedFile } from "@/lib/types/file";
 
 const formSchema = z.object({
@@ -29,26 +29,30 @@ interface NewChatFormProps {
     prompt: string,
     options?: {
       body: {
-        uploadedFiles: UploadedFile[];
+        uploadedFiles?: UploadedFile[];
         isEdit: boolean;
         messageId?: string;
+        chatSessionId: string;
       };
     }
   ) => Promise<string | null | undefined>;
-  assistantMessageIdRef?: RefObject<string | null>;
+  streamingMessageRef?: RefObject<string | null>;
 }
 
 export default function NewChatForm({
   type = "new",
   className,
   complete,
-  assistantMessageIdRef,
+  streamingMessageRef,
 }: NewChatFormProps) {
+  const pathname = usePathname();
+  const chatSessionId = pathname.split("/")[2]!;
   const { uploadedFiles } = useFileStore();
   const { addMessage, setStreamingMessageId } = useChatStore();
   const { setPrompt, addAttachments } = useNewSessionStore();
-  const { mutateAsync: createChatSession, isPending } = useCreateChatSession();
+  const { mutateAsync: createChatSession } = useCreateChatSession();
   const router = useRouter();
+  const [isSent, setIsSent] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -59,6 +63,7 @@ export default function NewChatForm({
   const prompt = watch("prompt");
 
   async function handleSend(values: z.infer<typeof formSchema>) {
+    setIsSent(true);
     try {
       const userMessage: ChatMessage = {
         id: nanoid(),
@@ -73,25 +78,28 @@ export default function NewChatForm({
         })),
       };
 
+      addMessage(userMessage);
+
+      const assistantId = nanoid();
+      addMessage({
+        id: assistantId,
+        content: "",
+        role: "assistant",
+      });
+
       if (type === "new") {
         setPrompt(values.prompt);
         addAttachments(uploadedFiles);
         const response = await createChatSession({ prompt: values.prompt });
-        const { id } = response.data;
-        router.push(`/c/${id}`);
+        router.push(`/c/${response.data.id}`);
         return;
       }
 
-      addMessage(userMessage);
-
-      const assistantId = nanoid();
-      addMessage({ id: assistantId, content: "", role: "assistant" });
-
-      if (!complete || !assistantMessageIdRef) {
+      if (!complete || !streamingMessageRef) {
         throw new Error("Missing complete function or assistantMessageIdRef");
       }
 
-      assistantMessageIdRef.current = assistantId;
+      streamingMessageRef.current = assistantId;
       setStreamingMessageId(assistantId);
 
       await complete(values.prompt, {
@@ -104,12 +112,14 @@ export default function NewChatForm({
             format: file.format,
           })),
           isEdit: false,
+          chatSessionId,
         },
       });
     } catch (error) {
       console.error("Prompt submission error:", error);
     } finally {
       reset();
+      setIsSent(false);
     }
   }
 
@@ -117,7 +127,7 @@ export default function NewChatForm({
     <FormProvider {...form}>
       <div
         className={cn(
-          "flex w-full lg:w-[640px] xl:w-[770px] flex-col justify-center items-center bg-dark-400 pb-2",
+          "flex w-[93%] lg:w-[640px] xl:w-[770px] flex-col justify-center items-center bg-dark-400 pb-2",
           className
         )}
       >
@@ -135,19 +145,29 @@ export default function NewChatForm({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Textarea
-                    {...field}
-                    placeholder="Ask anything..."
-                    className="max-h-[200px] text-base resize-none text-neutral-200"
-                    autoComplete="off"
-                    aria-label="Prompt input"
-                  />
+                  {!isSent ? (
+                    <Textarea
+                      {...field}
+                      placeholder="Ask anything..."
+                      className="max-h-[200px] text-base resize-none text-neutral-200"
+                      autoComplete="off"
+                      aria-label="Prompt input"
+                    />
+                  ) : (
+                    <Textarea
+                      className="max-h-[200px] text-base resize-none text-neutral-400"
+                      autoComplete="off"
+                      placeholder="Ask anything..."
+                      aria-label="Sending prompt"
+                      disabled
+                    />
+                  )}
                 </FormControl>
               </FormItem>
             )}
           />
 
-          <InputToolbar isPending={isPending} prompt={prompt} />
+          <InputToolbar isPending={isSent} prompt={prompt} />
         </form>
 
         {type === "existing" && (

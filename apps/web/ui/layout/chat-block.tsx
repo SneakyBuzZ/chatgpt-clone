@@ -6,19 +6,21 @@ import { UploadedFile } from "@/lib/types/file";
 import { useState } from "react";
 import { nanoid } from "nanoid";
 import useChatStore from "@/lib/store/chat-store";
+import { usePathname } from "next/navigation";
 
 interface ChatBlockProps {
   role: "user" | "assistant";
   content?: string;
   attachments?: UploadedFile[] | undefined;
   messageId?: string;
-  assistantMessageIdRef?: React.RefObject<string | null>;
+  streamingMessageRef?: React.RefObject<string | null>;
   complete?: (
     prompt: string,
     options?: {
       body: {
         isEdit: boolean;
         messageId?: string;
+        chatSessionId: string;
       };
     }
   ) => Promise<string | null | undefined>;
@@ -29,9 +31,11 @@ export default function ChatBlock({
   content,
   attachments,
   messageId,
-  assistantMessageIdRef,
+  streamingMessageRef,
   complete,
 }: ChatBlockProps) {
+  const pathname = usePathname();
+  const chatSessionId = pathname.split("/")[2]!;
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content || "");
   const { addMessage, setStreamingMessageId, removeMessagesAfterId } =
@@ -67,11 +71,11 @@ export default function ChatBlock({
     const assistantId = nanoid();
     addMessage({ id: assistantId, content: "", role: "assistant" });
 
-    if (!complete || !assistantMessageIdRef) {
+    if (!complete || !streamingMessageRef) {
       throw new Error("Missing complete function or assistantMessageIdRef");
     }
 
-    assistantMessageIdRef.current = assistantId;
+    streamingMessageRef.current = assistantId;
     setStreamingMessageId(assistantId);
 
     setIsEditing(false);
@@ -79,6 +83,7 @@ export default function ChatBlock({
       body: {
         isEdit: true,
         messageId: messageId,
+        chatSessionId,
       },
     });
   };
@@ -125,7 +130,7 @@ export default function ChatBlock({
               format={attachment.format}
             />
           ))}
-        <span className="bg-dark-200 w-fit rounded-tr-md rounded-3xl text-white py-3 px-4">
+        <span className="bg-dark-200 w-fit rounded-tr-md rounded-3xl text-white py-3 px-4 whitespace-pre-wrap">
           {editedContent || content}
         </span>
         <div className="opacity-0 group-hover:opacity-100 flex justify-end items-center transition-opacity duration-500 mt-2">

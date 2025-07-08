@@ -26,7 +26,6 @@ const useNewSessionStore = create<State & Actions>((set) => ({
     set((state) => ({
       attachments: [...state.attachments, ...files],
     })),
-
   removeAttachment: (id) =>
     set((state) => ({
       attachments: state.attachments.filter((file) => file.id !== id),

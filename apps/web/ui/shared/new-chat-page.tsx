@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import PrivateNav from "../layout/private-nav";
 import NewChatForm from "../forms/new-chat";
@@ -22,7 +24,7 @@ export default function NewChatPage() {
   return (
     <>
       <main className="flex flex-col h-full min-h-screen bg-dark-400">
-        <div className="sticky top-0 z-40 w-full">
+        <div className="sticky top-0 z-40 w-full bg-green-500">
           <PrivateNav />
         </div>
 
@@ -41,8 +43,8 @@ export default function NewChatPage() {
           </ul>
         </div>
 
-        <div className="sticky bottom-0 z-50 w-full bg-dark-400 px-4 flex justify-center">
-          <NewChatForm type="existing" />
+        <div className="sticky bottom-0 z-50 w-full px-4 flex justify-center">
+          <NewChatForm type="new" />
         </div>
       </main>
     </>

@@ -10,3 +10,4 @@ export * from "./tooltip";
 export * from "./form";
 export * from "./label";
 export * from "./sonner";
+export * from "./text-shimmer";

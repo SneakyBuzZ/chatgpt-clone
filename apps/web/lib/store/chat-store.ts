@@ -30,7 +30,9 @@ const useChatStore = create<State & Actions>((set) => ({
   updateMessage: (chunk, id) =>
     set((state) => {
       const index = state.messages.findIndex((msg) => msg.id === id);
-      if (index === -1 || !state.messages[index]) return state;
+      if (index === -1 || !state.messages[index]) {
+        return state;
+      }
 
       const updated = {
         ...state.messages[index],
