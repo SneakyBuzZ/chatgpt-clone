@@ -52,6 +52,7 @@ export default function ChatPage() {
       },
     }).then(() => {
       hasStreamedRef.current = false;
+      window.location.reload();
     });
   }, [prompt, attachments, chatSessionId, complete]);
 
