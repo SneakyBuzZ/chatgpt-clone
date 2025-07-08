@@ -135,7 +135,7 @@ export default function NewChatForm({
           onSubmit={handleSubmit(handleSend)}
           className="w-full flex flex-col bg-dark-200 rounded-3xl p-2"
         >
-          {uploadedFiles && uploadedFiles.length > 0 && (
+          {!isSent && uploadedFiles && uploadedFiles.length > 0 && (
             <FilePreviewBar files={uploadedFiles} />
           )}
 
